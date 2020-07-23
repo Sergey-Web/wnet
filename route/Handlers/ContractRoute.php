@@ -7,8 +7,6 @@ namespace Route\Handlers;
 use App\Controller\ContractController;
 use App\Request\Request;
 use App\Service\Database\DB;
-use App\Service\Database\DBConnection;
-use mysqli;
 
 class ContractRoute implements RouteInterface
 {
