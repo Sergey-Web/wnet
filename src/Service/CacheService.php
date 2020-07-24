@@ -13,6 +13,6 @@ class CacheService
 
     public function searchContract(string $search, string $type)
     {
-
+        return null;
     }
 }

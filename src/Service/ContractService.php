@@ -17,14 +17,13 @@ class ContractService
     public function __construct()
     {
         $this->mysqli = (new DB('mysqli'))->connection();
-        $this->redis = (new DB('redis'))->connection();
     }
 
     public function searchContract(string $search, string $type): ?stdClass
     {
         switch($type) {
             case 'number':
-                $res = $this->redis->searchNumContract($search) ?? $this->searchNumContract($search);
+                $res = $this->searchNumContract($search) ?? $this->searchNumContract($search);
                 break;
             case 'contract_id':
                 $res = $this->searchIdContract((int) $search);
