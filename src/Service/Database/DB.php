@@ -14,7 +14,7 @@ class DB implements DBConnectionInterface
         'redis' => RedisConnect::class,
     ];
 
-    private DBConnectionInterface $database;
+    private string $database;
 
     public function __construct(string $database)
     {
@@ -22,14 +22,11 @@ class DB implements DBConnectionInterface
             throw new Exception('The requested database was not found');
         }
 
-        /** @var DBConnectionInterface $dbConnection  */
-        $dbConnection = $this->typeDatabase[$database];
-
-        $this->database = $dbConnection::getInstance();
+        $this->database = $this->typeDatabase[$database];
     }
 
     public function connection()
     {
-        return $this->database->connection();
+        return $this->database::getInstance()->connection();
     }
 }

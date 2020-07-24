@@ -11,11 +11,31 @@ use Doctrine\ORM\Mapping\UnderscoreNamingStrategy;
 use Doctrine\ORM\Tools\Setup;
 use Doctrine\Common\EventManager;
 
-class DoctrineConnect extends DBConnection implements DBConnectionInterface
+class DoctrineConnect implements DBConnectionInterface
 {
+    protected static ?self $instances;
+
+    protected function __construct() {}
+
+    protected function __clone() {}
+
+    public function __wakeup()
+    {
+        throw new \Exception("Cannot unserialize a singleton.");
+    }
+
+    public static function getInstance(): self
+    {
+        if (!isset(self::$instances)) {
+            self::$instances = new static;
+        }
+
+        return self::$instances;
+    }
+
     public function connection(): EntityManager
     {
-        $settingsMySql =  require_once __DIR__ . '/../../../config/database.php';
+        $settingsMySql =  require __DIR__ . '/../../../config/database.php';
 
         $config = Setup::createAnnotationMetadataConfiguration(
             $settingsMySql['doctrine']['metadata_dirs'],

@@ -34,9 +34,7 @@ class ContractRoute implements RouteInterface
     {
         $action = $this->action;
 
-        $mysqli = (new DB('mysqli'))->connection();
-
-        return (new ContractController($mysqli))->$action($this->params);
+        return (new ContractController())->$action($this->params);
     }
 
     private function handleUrl(string $url): void
@@ -52,7 +50,7 @@ class ContractRoute implements RouteInterface
         if (count($url) === 0) {
             $action = '';
         } else {
-            //@ToDo: Some kind of route logic
+            //ToDo: Some kind of route logic
         }
 
         if (empty($this->actions[$action][$this->method])) {

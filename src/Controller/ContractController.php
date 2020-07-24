@@ -4,21 +4,42 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
-use mysqli;
+use App\Request\Request;
+use App\Response\Response;
+use App\Service\CacheService;
+use App\Service\ContractService;
 
 class ContractController
 {
-    private mysqli $mysqli;
+    private ContractService $contractService;
 
-    public function __construct(mysqli $mysqli)
+    private CacheService $cacheService;
+
+    public function __construct()
     {
-        $this->mysqli = $mysqli;
+        $this->cacheService = new CacheService();
+        $this->contractService = new ContractService();
     }
 
-    public function getCommunication()
+    public function getCommunication(Request $request): string
     {
-        var_dump($this->mysqli);die;
+
+        $contract = $this->cacheService->searchContract(
+            $request->toObject()->search,
+            $request->toObject()->type
+        );
+
+        if ($contract === null) {
+            $contract = (array) $this->contractService->searchContract(
+                $request->toObject()->search,
+                $request->toObject()->type
+            );
+        }
+
+        if (empty($contract)) {
+            return (new Response(['error' => 'contract not found']))->json();
+        }
+
+        return (new Response($contract))->json();
     }
-
-
 }

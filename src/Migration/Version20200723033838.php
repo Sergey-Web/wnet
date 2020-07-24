@@ -27,7 +27,7 @@ final class Version20200723033838 extends AbstractMigration
             (
                 `id`           INT                NOT NULL AUTO_INCREMENT,
                 `customer_id`  INT                NOT NULL,
-                `number`       VARCHAR(100)       NOT NULL,
+                `number`       VARCHAR(100)       NOT NULL UNIQUE,
                 `date_sign`    DATE               NOT NULL,
                 `staff_number` MEDIUMINT UNSIGNED NOT NULL,
                 PRIMARY KEY (id),
