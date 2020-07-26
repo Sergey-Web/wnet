@@ -4,7 +4,14 @@ declare(strict_types=1);
 
 namespace App\Validation\Handlers;
 
-use App\Validation\Handlers\Fields\{Email, Phone, UserName, Password, ValidationFieldInterface};
+use App\Validation\Handlers\Fields\{
+    ValidationFieldInterface,
+    Email,
+    Phone,
+    UserName,
+    Password,
+    SearchType,
+};
 use Exception;
 
 class ValueObject implements ValueObjectInterface
@@ -17,6 +24,7 @@ class ValueObject implements ValueObjectInterface
         'phone' => Phone::class,
         'password' => Password::class,
         'email' => Email::class,
+        'searchType' => SearchType::class
     ];
 
     public function __construct(string $type)

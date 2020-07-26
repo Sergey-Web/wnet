@@ -7,39 +7,40 @@ namespace App\Controller;
 use App\Request\Request;
 use App\Response\Response;
 use App\Service\CacheService;
-use App\Service\ContractService;
+use App\Service\CashContactService;
+use App\Service\SearchContract;
+use App\Validation\Validation;
+use Exception;
 
 class ContractController
 {
-    private ContractService $contractService;
+    private SearchContract $contractService;
 
-    private CacheService $cacheService;
+    private CashContactService $cashContactService;
 
     public function __construct()
     {
-        $this->cacheService = new CacheService();
-        $this->contractService = new ContractService();
+        $this->contractService = new SearchContract();
     }
 
     public function getCommunication(Request $request): string
     {
+        $errors = (new Validation('contractSearch'))->check($request->toArray());
 
-        $contract = $this->cacheService->searchContract(
-            $request->toObject()->search,
-            $request->toObject()->type
-        );
+        if (!empty($errors)) {
+            http_response_code(400);
+
+            return (new Response($errors))->json();
+        }
+
+        $contract = $this->contractService->search($request->toObject()->query, $request->toObject()->type);
 
         if ($contract === null) {
-            $contract = (array) $this->contractService->searchContract(
-                $request->toObject()->search,
-                $request->toObject()->type
-            );
+            http_response_code(400);
+
+            return (new Response(['error' => 'Contract not found']))->json();
         }
 
-        if (empty($contract)) {
-            return (new Response(['error' => 'contract not found']))->json();
-        }
-
-        return (new Response($contract))->json();
+        return (new Response(json_decode($contract, true)))->json();
     }
 }

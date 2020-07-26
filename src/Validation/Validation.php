@@ -4,14 +4,13 @@ declare(strict_types=1);
 
 namespace App\Validation;
 
-use App\Validation\Handlers\{UserRegistration, UserLogin, ValidationHandlerInterface};
+use App\Validation\Handlers\{ContractSearch, ValidationHandlerInterface};
 use Exception;
 
 class Validation implements ValidationInterface
 {
     public array $types = [
-        'registration' => UserRegistration::class,
-        'login' => UserLogin::class,
+        'contractSearch' => ContractSearch::class,
     ];
 
     private ValidationHandlerInterface $handler;

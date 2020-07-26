@@ -5,37 +5,47 @@ declare(strict_types=1);
 namespace App\Service;
 
 use App\Service\Database\DB;
-use Exception;
 use mysqli;
-use stdClass;
+use Predis\Client;
 
-class ContractService
+class SearchContract implements SearchContractInterface
 {
     private mysqli $mysqli;
-    private $redis;
+
+    private Client $redis;
+
+    private CashContactService $casheContactService;
+
+    public const TYPES = [
+        'contract_id' => 'searchIdContract',
+        'number' => 'searchNumContract',
+    ];
 
     public function __construct()
     {
         $this->mysqli = (new DB('mysqli'))->connection();
+        $this->redis = (new DB('redis'))->connection();
+        $this->casheContactService = new CashContactService();
     }
 
-    public function searchContract(string $search, string $type): ?stdClass
+    public function search(string $query, string $type): ?string
     {
-        switch($type) {
-            case 'number':
-                $res = $this->searchNumContract($search) ?? $this->searchNumContract($search);
-                break;
-            case 'contract_id':
-                $res = $this->searchIdContract((int) $search);
-                break;
-            default:
-                throw new Exception('Wrong search type', 400);
+        $contract = $this->casheContactService->getContract($query, $type);
+
+        if ($contract === null) {
+            $method = static::TYPES[$type];
+            $contract = $this->$method($query, $type);
+
+            if ($contract !== null) {
+                $this->casheContactService->setContract($query, $contract);
+                $contract = json_encode($contract);
+            }
         }
 
-        return $res;
+        return $contract;
     }
 
-    public function searchNumContract(string $num): ?stdClass
+    public function searchNumContract(string $num): ?array
     {
         return $this->mysqli->query('
             SELECT 
@@ -52,11 +62,11 @@ class ContractService
             JOIN wnet.services AS serv ON cont.id = serv.contract_id
             WHERE cont.number = ' . $num
         )
-            ->fetch_object()
+            ->fetch_assoc()
         ;
     }
 
-    public function searchIdContract(int $idContract): ?stdClass
+    public function searchIdContract(string $idContract): ?array
     {
         return $this->mysqli->query('
             SELECT 
@@ -73,7 +83,7 @@ class ContractService
             JOIN wnet.services AS serv ON cont.id = serv.contract_id
             WHERE cont.id = ' . $idContract
         )
-            ->fetch_object()
+            ->fetch_assoc()
         ;
     }
 }
