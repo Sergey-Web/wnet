@@ -28,17 +28,13 @@ class ContractController
         $errors = (new Validation('contractSearch'))->check($request->toArray());
 
         if (!empty($errors)) {
-            http_response_code(400);
-
-            return (new Response($errors))->json();
+            return (new Response($errors, 400))->json();
         }
 
         $contract = $this->contractService->search($request->toObject()->query, $request->toObject()->type);
 
         if ($contract === null) {
-            http_response_code(400);
-
-            return (new Response(['error' => 'Contract not found']))->json();
+            return (new Response(['error' => 'Contract not found'], 400))->json();
         }
 
         return (new Response(json_decode($contract, true)))->json();
