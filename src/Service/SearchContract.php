@@ -32,14 +32,14 @@ class SearchContract implements SearchContractInterface
     public function search(stdClass $data): ?string
     {
         $contract = $this->casheContactService->getContract($data->query, $data->type);
-        $contract = null;
+
         if ($contract === null) {
             $method = static::TYPES[$data->type];
             $status = implode("','", $data->status);
 
             $contract = $this->$method($data->query, $status);
 
-            if ($contract !== null) {
+            if (!empty($contract)) {
                 $this->casheContactService->setContract($data->query, $contract);
                 $contract = json_encode($contract);
             }
@@ -48,7 +48,7 @@ class SearchContract implements SearchContractInterface
         return $contract;
     }
 
-    public function searchNumContract(string $num, string $status): ?array
+    public function searchNumContract(string $num, string $status): array
     {
         $res = [];
         $query = $this->mysqli->query("
@@ -67,14 +67,16 @@ class SearchContract implements SearchContractInterface
             WHERE cont.number = {$num} AND serv.status IN ('{$status}')"
         );
 
-        foreach ($query as $i) {
-            $res[] = $i;
+        if ($res !== null) {
+            foreach ($query as $i) {
+                $res[] = $i;
+            }
         }
 
         return $res;
     }
 
-    public function searchIdContract(string $idContract, string $status): ?array
+    public function searchIdContract(string $idContract, string $status): array
     {
         $res = [];
         $query = $this->mysqli->query("
@@ -93,8 +95,10 @@ class SearchContract implements SearchContractInterface
             WHERE cont.id = {$idContract} AND serv.status IN ('{$status}')"
         );
 
-        foreach ($query as $i) {
-            $res[] = $i;
+        if ($res !== null) {
+            foreach ($query as $i) {
+                $res[] = $i;
+            }
         }
 
         return $res;

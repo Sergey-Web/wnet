@@ -30,9 +30,8 @@ jQuery(document).ready(function () {
                 url:  window.location,
                 data: JSON.stringify(data),
                 success: function (data) {
-                    if (data) {
-                        var parsedData = JSON.parse(data);
-                        console.log(parsedData);
+                    var parsedData = JSON.parse(data);
+                    if (parsedData.length !== 0) {
                         $('#contract').removeAttr('hidden');
                         $('#clientName').text(parsedData[0].name);
                         $('#company').text(parsedData[0].company);

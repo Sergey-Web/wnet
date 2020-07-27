@@ -6,15 +6,12 @@ namespace App\Controller;
 
 use App\Request\Request;
 use App\Response\Response;
-use App\Service\CashContactService;
 use App\Service\SearchContract;
 use App\Validation\Validation;
 
 class ContractController
 {
     private SearchContract $contractService;
-
-    private CashContactService $cashContactService;
 
     public function __construct()
     {
@@ -29,13 +26,13 @@ class ContractController
             return (new Response($errors, 400))->json();
         }
 
-        $contract = $this->contractService->search($request->toObject());
+        $contract = json_decode($this->contractService->search($request->toObject()), true);
 
-        if ($contract === null) {
+        if (empty($contract)) {
             return (new Response(['error' => 'Contract not found'], 400))->json();
         }
 
-        return (new Response(json_decode($contract, true)))->json();
+        return (new Response($contract))->json();
     }
 
     public function search(Request $request): void
