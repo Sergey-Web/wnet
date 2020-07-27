@@ -7,6 +7,7 @@ namespace App\Service;
 use App\Service\Database\DB;
 use mysqli;
 use Predis\Client;
+use stdClass;
 
 class SearchContract implements SearchContractInterface
 {
@@ -28,16 +29,18 @@ class SearchContract implements SearchContractInterface
         $this->casheContactService = new CashContactService();
     }
 
-    public function search(string $query, string $type): ?string
+    public function search(stdClass $data): ?string
     {
-        $contract = $this->casheContactService->getContract($query, $type);
-
+        $contract = $this->casheContactService->getContract($data->query, $data->type);
+        $contract = null;
         if ($contract === null) {
-            $method = static::TYPES[$type];
-            $contract = $this->$method($query, $type);
+            $method = static::TYPES[$data->type];
+            $status = implode("','", $data->status);
+
+            $contract = $this->$method($data->query, $status);
 
             if ($contract !== null) {
-                $this->casheContactService->setContract($query, $contract);
+                $this->casheContactService->setContract($data->query, $contract);
                 $contract = json_encode($contract);
             }
         }
@@ -45,9 +48,10 @@ class SearchContract implements SearchContractInterface
         return $contract;
     }
 
-    public function searchNumContract(string $num): ?array
+    public function searchNumContract(string $num, string $status): ?array
     {
-        return $this->mysqli->query('
+        $res = [];
+        $query = $this->mysqli->query("
             SELECT 
                 cont.id,
                 cont.number,
@@ -60,15 +64,20 @@ class SearchContract implements SearchContractInterface
             FROM wnet.contracts AS cont
             JOIN wnet.customers AS cust ON cont.customer_id = cust.id
             JOIN wnet.services AS serv ON cont.id = serv.contract_id
-            WHERE cont.number = ' . $num
-        )
-            ->fetch_assoc()
-        ;
+            WHERE cont.number = {$num} AND serv.status IN ('{$status}')"
+        );
+
+        foreach ($query as $i) {
+            $res[] = $i;
+        }
+
+        return $res;
     }
 
-    public function searchIdContract(string $idContract): ?array
+    public function searchIdContract(string $idContract, string $status): ?array
     {
-        return $this->mysqli->query('
+        $res = [];
+        $query = $this->mysqli->query("
             SELECT 
                 cont.id,
                 cont.number,
@@ -81,9 +90,13 @@ class SearchContract implements SearchContractInterface
             FROM wnet.contracts AS cont
             JOIN wnet.customers AS cust ON cont.customer_id = cust.id
             JOIN wnet.services AS serv ON cont.id = serv.contract_id
-            WHERE cont.id = ' . $idContract
-        )
-            ->fetch_assoc()
-        ;
+            WHERE cont.id = {$idContract} AND serv.status IN ('{$status}')"
+        );
+
+        foreach ($query as $i) {
+            $res[] = $i;
+        }
+
+        return $res;
     }
 }

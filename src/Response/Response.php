@@ -18,4 +18,11 @@ class Response implements ResponseInterface
     {
         return json_encode($this->data);
     }
+
+    public function view(string $template): void
+    {
+        $template = __DIR__ . '/../../template/'.$template;
+        extract($this->data);
+        require_once __DIR__ . '/../../template/index.php';
+    }
 }

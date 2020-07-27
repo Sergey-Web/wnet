@@ -30,6 +30,10 @@ class ContractSearch implements ValidationHandlerInterface
             $errors[] = ['type' => 'Field type search is not specified'];;
         }
 
+        if (is_numeric($this->query) === false) {
+            $errors[] = ['query' => 'Field query should be a number'];
+        }
+
         $searchType = (new ValueObject('searchType'))->check($this->searchType);
 
         if ($searchType !== null) {

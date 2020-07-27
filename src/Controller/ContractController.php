@@ -6,11 +6,9 @@ namespace App\Controller;
 
 use App\Request\Request;
 use App\Response\Response;
-use App\Service\CacheService;
 use App\Service\CashContactService;
 use App\Service\SearchContract;
 use App\Validation\Validation;
-use Exception;
 
 class ContractController
 {
@@ -31,12 +29,17 @@ class ContractController
             return (new Response($errors, 400))->json();
         }
 
-        $contract = $this->contractService->search($request->toObject()->query, $request->toObject()->type);
+        $contract = $this->contractService->search($request->toObject());
 
         if ($contract === null) {
             return (new Response(['error' => 'Contract not found'], 400))->json();
         }
 
         return (new Response(json_decode($contract, true)))->json();
+    }
+
+    public function search(Request $request): void
+    {
+        (new Response(['test' => 'ContractSearch']))->view('contract/search.php');
     }
 }

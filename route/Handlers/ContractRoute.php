@@ -19,7 +19,10 @@ class ContractRoute implements RouteInterface
     private string $method;
 
     private array $actions = [
-        '' => ['POST' => 'getCommunication'],
+        '' => [
+            'POST' => 'getCommunication',
+            'GET' => 'search'
+        ],
     ];
 
     public function __construct(string $url, string $method, string $params)
@@ -50,7 +53,7 @@ class ContractRoute implements RouteInterface
         if (count($url) === 0) {
             $action = '';
         } else {
-            //ToDo: Some kind of route logic
+            $action = $url[1];
         }
 
         if (empty($this->actions[$action][$this->method])) {

@@ -32,4 +32,9 @@ class CashContactService
         $this->client->set(static::CONTRACT_ID.':'.$id, json_encode($dataContract));
         $this->client->set(static::CONTRACT_NUMBER.':'.$dataContract['number'], $id);
     }
+
+    public function flushAll()
+    {
+        $this->client->flushall();
+    }
 }
